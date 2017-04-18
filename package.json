@@ -1,0 +1,30 @@
+{
+  "name": "retail_products_search",
+  "version": "1.0.0",
+  "description": "PoC for data enrichment using ebay find API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oakinogundeji/retail_products_search.git"
+  },
+  "author": "Telios WebDev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oakinogundeji/retail_products_search/issues"
+  },
+  "homepage": "https://github.com/oakinogundeji/retail_products_search#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "superagent": "^3.5.2",
+    "urlencode": "^1.1.0"
+  },
+  "devDependencies": {
+    "clarify": "^2.0.0",
+    "dotenv": "^4.0.0",
+    "morgan": "^1.8.1"
+  }
+}
