@@ -69,7 +69,7 @@ app.use(bParser.urlencoded({extended: true}));
 //=============================================================================
 app.get('/test', (req, res) => res.status(200).json('ok'));
 app.get('/searchebay', (req, res) => {
-  const item = req.query.item;
+  const item = encodeURL(req.query.item);
   searchURL += '&keywords=' + item +'&paginationInput.entriesPerPage=' + PAGE_PAGINATION;
   console.log(`search URL: ${searchURL}`);
   request
