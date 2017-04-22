@@ -13,8 +13,7 @@ const
   request = require('superagent'),
   encodeURL = require('urlencode'),
   SEM3 = require('semantics3-node'),
-  moment = require('moment'),
-  HASHES = require('jshashes'),
+  parser = require('xml2json'),
   crypto = require("crypto"),
   http = require('http'),
   app = express(),
@@ -136,6 +135,7 @@ app.get('/searchSEM3', (req, res) => {
 
 app.get('/searchAWS', (req, res) => {
   const
+    ITEM = req.query.item,
     endpoint = 'webservices.amazon.co.uk',
     uri = '/onca/xml';
   let
@@ -145,7 +145,7 @@ app.get('/searchAWS', (req, res) => {
       "AWSAccessKeyId=" + AWS_API_KEY,
       "AssociateTag=" + AWS_ASSOCIATE_ID,
       "SearchIndex=All",
-      "Keywords=ipad",
+      "Keywords=" + ITEM,
       "ResponseGroup=ItemAttributes"
     ],
     TIME_STAMP = new Date();
@@ -169,8 +169,21 @@ app.get('/searchAWS', (req, res) => {
         console.log(err);
         return res.status(500).json(err);
       } else {
-        console.log(resp.text);
-        return res.status(200).json({data: resp.text});
+        const jsonResp = parser.toJson(resp.text);
+        const jsonObj = JSON.parse(jsonResp);
+        console.log('JSON Obj:');
+        console.log(jsonObj);
+        console.log('jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes');
+        console.log(jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes);
+        const
+          BRAND = jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes.Brand,
+          PRODUCT_GROUP = jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes.ProductGroup,
+          PRODUCT_TYPE = jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes.ProductTypeName;
+        return res.status(200).json({
+          brand: BRAND,
+          group: PRODUCT_GROUP,
+          type: PRODUCT_TYPE
+        });
       }
     });
 });
