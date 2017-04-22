@@ -13,6 +13,9 @@ const
   request = require('superagent'),
   encodeURL = require('urlencode'),
   SEM3 = require('semantics3-node'),
+  moment = require('moment'),
+  HASHES = require('jshashes'),
+  crypto = require("crypto"),
   http = require('http'),
   app = express(),
   server = http.createServer(app);
@@ -33,7 +36,10 @@ const
   PAGE_PAGINATION = process.env.PAGE_PAGINATION,
   SEM3_KEY = process.env.SEM3_KEY,
   SEM3_SECRET = process.env.SEM3_SECRET,
-  SEM3_SERVICE = SEM3(SEM3_KEY, SEM3_SECRET);
+  SEM3_SERVICE = SEM3(SEM3_KEY, SEM3_SECRET),
+  AWS_API_KEY = process.env.AWS_API_KEY,
+  AWS_ASSOCIATE_ID = process.env.AWS_ASSOCIATE_ID,
+  AWS_SECRET = process.env.AWS_SECRET;
 let searchURL = BASE_SEARCH_URL +'?OPERATION-NAME='+ OPERATION_NAME
   +'&SERVICE-VERSION='+ SERVICE_VERSION
   +'&SECURITY-APPNAME='+ SECURITY_APPNAME
@@ -126,7 +132,47 @@ app.get('/searchSEM3', (req, res) => {
       return res.status(200).json({brand, category});
     }
   });
+});
 
+app.get('/searchAWS', (req, res) => {
+  const
+    endpoint = 'webservices.amazon.co.uk',
+    uri = '/onca/xml';
+  let
+    params = [
+      "Service=AWSECommerceService",
+      "Operation=ItemSearch",
+      "AWSAccessKeyId=" + AWS_API_KEY,
+      "AssociateTag=" + AWS_ASSOCIATE_ID,
+      "SearchIndex=All",
+      "Keywords=ipad",
+      "ResponseGroup=ItemAttributes"
+    ],
+    TIME_STAMP = new Date();
+  TIME_STAMP = TIME_STAMP.toISOString();
+  params.push("Timestamp=" + TIME_STAMP);
+  params.sort();
+  const encodedParams = params.map(param => {
+    const paramArray = param.split('=');
+    paramArray[1] = encodeURL(paramArray[1]);
+    return paramArray.join('=');
+  });
+  const CANONICAL_STR = encodedParams.join('&');
+  const SIGNABLE_STR = "GET\n" + endpoint + "\n" + uri + "\n" + CANONICAL_STR;
+  const SIGNATURE = crypto.createHmac("sha256", AWS_SECRET).update(SIGNABLE_STR).digest("base64");
+  const SIGNED_URL = 'http://' + endpoint + uri +'?'+ CANONICAL_STR +'&Signature='+ encodeURL(SIGNATURE);
+  console.log(`SIGNED_URL: ${SIGNED_URL}`);
+  request
+    .get(SIGNED_URL)
+    .end(function (err, resp) {
+      if(err) {
+        console.log(err);
+        return res.status(500).json(err);
+      } else {
+        console.log(resp.text);
+        return res.status(200).json({data: resp.text});
+      }
+    });
 });
 //=============================================================================
 /**
