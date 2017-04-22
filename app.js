@@ -137,9 +137,9 @@ app.get('/searchAWS', (req, res) => {
   const
     ITEM = req.query.item,
     endpoint = 'webservices.amazon.co.uk',
-    uri = '/onca/xml';
-  let
-    params = [
+    uri = '/onca/xml',
+    TIME_STAMP = new Date().toISOString();
+  let params = [
       "Service=AWSECommerceService",
       "Operation=ItemSearch",
       "AWSAccessKeyId=" + AWS_API_KEY,
@@ -147,9 +147,7 @@ app.get('/searchAWS', (req, res) => {
       "SearchIndex=All",
       "Keywords=" + ITEM,
       "ResponseGroup=ItemAttributes"
-    ],
-    TIME_STAMP = new Date();
-  TIME_STAMP = TIME_STAMP.toISOString();
+    ];
   params.push("Timestamp=" + TIME_STAMP);
   params.sort();
   const encodedParams = params.map(param => {
@@ -157,10 +155,11 @@ app.get('/searchAWS', (req, res) => {
     paramArray[1] = encodeURL(paramArray[1]);
     return paramArray.join('=');
   });
-  const CANONICAL_STR = encodedParams.join('&');
-  const SIGNABLE_STR = "GET\n" + endpoint + "\n" + uri + "\n" + CANONICAL_STR;
-  const SIGNATURE = crypto.createHmac("sha256", AWS_SECRET).update(SIGNABLE_STR).digest("base64");
-  const SIGNED_URL = 'http://' + endpoint + uri +'?'+ CANONICAL_STR +'&Signature='+ encodeURL(SIGNATURE);
+  const
+    CANONICAL_STR = encodedParams.join('&'),
+    SIGNABLE_STR = "GET\n" + endpoint + "\n" + uri + "\n" + CANONICAL_STR,
+    SIGNATURE = crypto.createHmac("sha256", AWS_SECRET).update(SIGNABLE_STR).digest("base64"),
+    SIGNED_URL = 'http://' + endpoint + uri +'?'+ CANONICAL_STR +'&Signature='+ encodeURL(SIGNATURE);
   console.log(`SIGNED_URL: ${SIGNED_URL}`);
   request
     .get(SIGNED_URL)
@@ -169,8 +168,9 @@ app.get('/searchAWS', (req, res) => {
         console.log(err);
         return res.status(500).json(err);
       } else {
-        const jsonResp = parser.toJson(resp.text);
-        const jsonObj = JSON.parse(jsonResp);
+        const
+          jsonResp = parser.toJson(resp.text),
+          jsonObj = JSON.parse(jsonResp);
         console.log('JSON Obj:');
         console.log(jsonObj);
         console.log('jsonObj.ItemSearchResponse.Items.Item[0].ItemAttributes');
