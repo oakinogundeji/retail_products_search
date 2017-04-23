@@ -317,8 +317,16 @@ app.get('/enrich', (req, res) => {
     promiseArray = [searchEbay(ITEM), searchAmazon(ITEM), searchSemantics3(ITEM)];
   return Promise.all(promiseArray)
     .then(data => {
-      const enrichedQuery = generateUniqStr(data);
-      return res.status(200).json({data: ITEM +' '+ enrichedQuery});
+      const
+        enrichedQuery = generateUniqStr(data),
+        ebay = data[0],
+        amazon = data[1],
+        semantics3 = data[2];
+      return res.status(200).json({
+        ebay,
+        amazon,
+        semantics3,
+        data: 'You\'re enriched query: '+ ITEM +' '+ enrichedQuery});
     })
     .catch(err => res.status(500).json({error: err}));
 });
@@ -329,8 +337,14 @@ app.get('/enrichAWSnSemantics3', (req, res) => {
     promiseArray = [searchAmazon(ITEM), searchSemantics3(ITEM)];
   return Promise.all(promiseArray)
     .then(data => {
-      const enrichedQuery = generateUniqStr(data);
-      return res.status(200).json({data: ITEM +' '+ enrichedQuery});
+      const
+        enrichedQuery = generateUniqStr(data),
+        amazon = data[0],
+        semantics3 = data[1];
+      return res.status(200).json({
+        amazon,
+        semantics3,
+        data: 'You\'re enriched query: '+ ITEM +' '+ enrichedQuery});
     })
     .catch(err => res.status(500).json({error: err}));
 });
