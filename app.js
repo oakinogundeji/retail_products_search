@@ -326,7 +326,7 @@ app.get('/enrich', (req, res) => {
         ebay,
         amazon,
         semantics3,
-        data: 'You\'re enriched query: '+ ITEM +' '+ enrichedQuery});
+        data: 'Your enriched query: '+ ITEM +' '+ enrichedQuery});
     })
     .catch(err => res.status(500).json({error: err}));
 });
