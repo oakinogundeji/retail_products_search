@@ -19,8 +19,10 @@
   },
   "homepage": "https://github.com/oakinogundeji/retail_products_search#readme",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "lodash": "^4.17.4",
     "semantics3-node": "0.0.3",
     "superagent": "^3.5.2",
     "urlencode": "^1.1.0",
