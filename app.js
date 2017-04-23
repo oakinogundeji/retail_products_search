@@ -344,7 +344,7 @@ app.get('/enrichAWSnSemantics3', (req, res) => {
       return res.status(200).json({
         amazon,
         semantics3,
-        data: 'You\'re enriched query: '+ ITEM +' '+ enrichedQuery});
+        data: 'Your enriched query: '+ ITEM +' '+ enrichedQuery});
     })
     .catch(err => res.status(500).json({error: err}));
 });
